@@ -1,0 +1,533 @@
+{
+  "map_ar": [
+    {
+      "key": 1,
+      "value": "Low Voltage"
+    },
+    {
+      "key": 2,
+      "value": "High Voltage"
+    },
+    {
+      "key": 4,
+      "value": "Low SOC"
+    },
+    {
+      "key": 8,
+      "value": "Low Starter Voltage"
+    },
+    {
+      "key": 16,
+      "value": "High Starter Voltage"
+    },
+    {
+      "key": 32,
+      "value": "Low Temperature"
+    },
+    {
+      "key": 64,
+      "value": "High Temperature"
+    },
+    {
+      "key": 128,
+      "value": "Mid Voltage"
+    },
+    {
+      "key": 256,
+      "value": "Overload"
+    },
+    {
+      "key": 512,
+      "value": "DC Ripple"
+    },
+    {
+      "key": 1024,
+      "value": "Low V AC Out"
+    },
+    {
+      "key": 2048,
+      "value": "High V AC Out"
+    }
+  ],
+  "map_pid": [
+    {
+      "key": "0x203",
+      "value": "BMV-700"
+    },
+    {
+      "key": "0xA04E",
+      "value": "BlueSolar MPPT 150/60"
+    },
+    {
+      "key": "0x204",
+      "value": "BMV-702"
+    },
+    {
+      "key": "0xA046",
+      "value": "BlueSolar MPPT 150/70"
+    },
+    {
+      "key": "0x205",
+      "value": "BMV-700H"
+    },
+    {
+      "key": "0xA04F",
+      "value": "BlueSolar MPPT 150/85"
+    },
+    {
+      "key": "0xA04C",
+      "value": "BlueSolar MPPT 75/10"
+    },
+    {
+      "key": "0xA047",
+      "value": "BlueSolar MPPT 150/100"
+    },
+    {
+      "key": "0x300",
+      "value": "BlueSolar MPPT 70/15"
+    },
+    {
+      "key": "0xA051",
+      "value": "SmartSolar MPPT 150/100"
+    },
+    {
+      "key": "0xA042",
+      "value": "BlueSolar MPPT 75/15"
+    },
+    {
+      "key": "0xA050",
+      "value": "SmartSolar MPPT 250/100"
+    },
+    {
+      "key": "0xA043",
+      "value": "BlueSolar MPPT 100/15"
+    },
+    {
+      "key": "0xA201",
+      "value": "Phoenix Inverter 12V 250VA 230V"
+    },
+    {
+      "key": "0xA044",
+      "value": "BlueSolar MPPT 100/30 rev1"
+    },
+    {
+      "key": "0xA202",
+      "value": "Phoenix Inverter 24V 250VA 230V"
+    },
+    {
+      "key": "0xA04A",
+      "value": "BlueSolar MPPT 100/30 rev2"
+    },
+    {
+      "key": "0xA204",
+      "value": "Phoenix Inverter 48V 250VA 230V"
+    },
+    {
+      "key": "0xA041",
+      "value": "BlueSolar MPPT 150/35 rev1"
+    },
+    {
+      "key": "0xA211",
+      "value": "Phoenix Inverter 12V 375VA 230V"
+    },
+    {
+      "key": "0xA04B",
+      "value": "BlueSolar MPPT 150/35 rev2"
+    },
+    {
+      "key": "0xA212",
+      "value": "Phoenix Inverter 24V 375VA 230V"
+    },
+    {
+      "key": "0xA04D",
+      "value": "BlueSolar MPPT 150/45"
+    },
+    {
+      "key": "0xA214",
+      "value": "BlueSolar MPPT 75/50"
+    },
+    {
+      "key": "0xA221",
+      "value": "Phoenix Inverter 12V 500VA 230V"
+    },
+    {
+      "key": "0xA045",
+      "value": "BlueSolar MPPT 100/50 rev1"
+    },
+    {
+      "key": "0xA222",
+      "value": "Phoenix Inverter 24V 500VA 230V"
+    },
+    {
+      "key": "0xA049",
+      "value": "BlueSolar MPPT 100/50"
+    },
+    {
+      "key": "0xA224",
+      "value": "Phoenix Inverter 48V 500VA 230V"
+    },
+    {
+      "key": "0xA057",
+      "value": "SmartSolar MPPT 100/50"
+    }
+  ],
+  "map_cs": [
+    {
+      "key": 0,
+      "value": "Off"
+    },
+    {
+      "key": 1,
+      "value": "Low power"
+    },
+    {
+      "key": 2,
+      "value": "Fault"
+    },
+    {
+      "key": 3,
+      "value": "Bulk"
+    },
+    {
+      "key": 4,
+      "value": "Absorption"
+    },
+    {
+      "key": 5,
+      "value": "Float"
+    },
+    {
+      "key": 9,
+      "value": "Inverting"
+    }
+  ],
+  "map_err": [
+    {
+      "key": 0,
+      "value": "No error"
+    },
+    {
+      "key": 2,
+      "value": "Battery voltage too high"
+    },
+    {
+      "key": 17,
+      "value": "Charger temperature too high"
+    },
+    {
+      "key": 18,
+      "value": "Charger over current"
+    },
+    {
+      "key": 19,
+      "value": "Charger current reversed"
+    },
+    {
+      "key": 20,
+      "value": "Bulk time limit exceeded"
+    },
+    {
+      "key": 21,
+      "value": "Current sensor issue (sensor bias/sensor broken)"
+    },
+    {
+      "key": 26,
+      "value": "Terminals overheated"
+    },
+    {
+      "key": 33,
+      "value": "Input voltage too high (solar panel)"
+    },
+    {
+      "key": 34,
+      "value": "Input current too high (solar panel)"
+    },
+    {
+      "key": 38,
+      "value": "Input shutdown (due to excessive battery voltage)"
+    },
+    {
+      "key": 116,
+      "value": "Factory calibration data lost"
+    },
+    {
+      "key": 117,
+      "value": "Invalid/incompatible firmware"
+    },
+    {
+      "key": 119,
+      "value": "User settings invalid"
+    }
+  ],
+  "map_mode": [
+    {
+      "key": 2,
+      "value": "VE_REG_MODE_INVERTER"
+    },
+    {
+      "key": 4,
+      "value": "VE_REG_MODE_OFF"
+    },
+    {
+      "key": 5,
+      "value": "VE_REG_MODE_ECO"
+    }
+  ],
+  "fields": [
+    {
+      "name": "V",
+      "type": "mV",
+      "description": "Main (battery) voltage"
+    },
+    {
+      "name": "VS",
+      "type": "mV",
+      "description": "Auxiliary (starter) voltage"
+    },
+    {
+      "name": "VM",
+      "type": "mV",
+      "description": "Mid-point voltage of the battery bank"
+    },
+    {
+      "name": "DM",
+      "type": "%",
+      "description": "Mid-point deviation of the battery bank"
+    },
+    {
+      "name": "VPV",
+      "type": "mV",
+      "description": "Panel voltage"
+    },
+    {
+      "name": "PPV",
+      "type": "W",
+      "description": "Panel power"
+    },
+    {
+      "name": "I",
+      "type": "mA",
+      "description": "Battery current"
+    },
+    {
+      "name": "IL",
+      "type": "mA",
+      "description": "Load current"
+    },
+    {
+      "name": "LOAD",
+      "type": "onoff",
+      "description": "Load output state"
+    },
+    {
+      "name": "T",
+      "type": "deg_C",
+      "description": "Battery temperature"
+    },
+    {
+      "name": "P",
+      "type": "W",
+      "description": "Instantaneous power"
+    },
+    {
+      "name": "CE",
+      "type": "mAh",
+      "description": "Consumed Amp Hours"
+    },
+    {
+      "name": "SOC",
+      "type": "%",
+      "description": "State of Charge"
+    },
+    {
+      "name": "TTG",
+      "type": "min",
+      "description": "Time to Go"
+    },
+    {
+      "name": "Alarm",
+      "type": "onoff",
+      "description": "Alarm condition active"
+    },
+    {
+      "name": "Relay",
+      "type": "onoff",
+      "description": "Relay State"
+    },
+    {
+      "name": "AR",
+      "type": "map_ar",
+      "description": "Alarm Reason"
+    },
+    {
+      "name": "H1",
+      "type": "mAh",
+      "description": "Depth of the deepest discharge"
+    },
+    {
+      "name": "H2",
+      "type": "mAh",
+      "description": "Depth of the last discharge"
+    },
+    {
+      "name": "H3",
+      "type": "mAh",
+      "description": "Depth of the average discharge"
+    },
+    {
+      "name": "H4",
+      "type": "count",
+      "description": "Number of charge cycles"
+    },
+    {
+      "name": "H5",
+      "type": "count",
+      "description": "Number of full discharges"
+    },
+    {
+      "name": "H6",
+      "type": "mAh",
+      "description": "Cumulative Amp Hours drawn"
+    },
+    {
+      "name": "H7",
+      "type": "mV",
+      "description": "Minimum main (battery) voltage"
+    },
+    {
+      "name": "H8",
+      "type": "mV",
+      "description": "Maximum main (battery) voltage"
+    },
+    {
+      "name": "H9",
+      "type": "sec",
+      "description": "Number of seconds since last full charge"
+    },
+    {
+      "name": "H10",
+      "type": "count",
+      "description": "Number of automatic synchronizations"
+    },
+    {
+      "name": "H11",
+      "type": "count",
+      "description": "Number of low main voltage alarms"
+    },
+    {
+      "name": "H12",
+      "type": "count",
+      "description": "Number of high main voltage alarms"
+    },
+    {
+      "name": "H13",
+      "type": "count",
+      "description": "Number of low auxiliary voltage alarms"
+    },
+    {
+      "name": "H14",
+      "type": "count",
+      "description": "Number of high auxiliary voltage alarms"
+    },
+    {
+      "name": "H15",
+      "type": "mV",
+      "description": "Minimum auxiliary (battery) voltage"
+    },
+    {
+      "name": "H16",
+      "type": "mV",
+      "description": "Maximum auxiliary (battery) voltage"
+    },
+    {
+      "name": "H17",
+      "type": "0.01 kWh",
+      "description": "Amount of discharged energy"
+    },
+    {
+      "name": "H18",
+      "type": "0.01 kWh",
+      "description": "Amount of charged energy"
+    },
+    {
+      "name": "H19",
+      "type": "0.01 kWh",
+      "description": "Yield total (user resettable counter)"
+    },
+    {
+      "name": "H20",
+      "type": "0.01 kWh",
+      "description": "Yield today"
+    },
+    {
+      "name": "H21",
+      "type": "W",
+      "description": "Maximum power today"
+    },
+    {
+      "name": "H22",
+      "type": "0.01 kWh",
+      "description": "Yield yesterday"
+    },
+    {
+      "name": "H23",
+      "type": "W",
+      "description": "Maximum power yesterday"
+    },
+    {
+      "name": "ERR",
+      "type": "map_err",
+      "description": "Error code"
+    },
+    {
+      "name": "CS",
+      "type": "map_cs",
+      "description": "State of operation"
+    },
+    {
+      "name": "BMV",
+      "type": "string",
+      "description": "Model description (deprecated)"
+    },
+    {
+      "name": "FW",
+      "type": "fw",
+      "description": "Firmware version"
+    },
+    {
+      "name": "PID",
+      "type": "map_pid",
+      "description": "Product ID"
+    },
+    {
+      "name": "SER#",
+      "type": "serial",
+      "description": "Serial number"
+    },
+    {
+      "name": "HSDS",
+      "type": "range[0..364]",
+      "description": "Day sequence number (0..364)"
+    },
+    {
+      "name": "MODE",
+      "type": "map_mode",
+      "description": "Device mode"
+    },
+    {
+      "name": "AC_OUT_V",
+      "type": "0.01 V",
+      "description": "AC output voltage"
+    },
+    {
+      "name": "AC_OUT_I",
+      "type": "0.1 A",
+      "description": "AC output current"
+    },
+    {
+      "name": "WARN",
+      "type": "map_ar",
+      "description": "Warning reason"
+    }
+  ]
+}

@@ -1,0 +1,467 @@
+<html>
+  <head>
+    <title>esp32</title>
+
+    <script language="javascript" type="text/javascript">
+      class DashMeter {
+        constructor(canvas, maxValue) {
+          this._canvas = canvas;
+          this._maxValue = maxValue;
+          this._value = 0;
+          this._label = "";
+          this._background = "#ffffff";
+          this._foreground = "#000000";
+          this._meterEmpty = "#cccccc";
+          this._arcStart = Math.PI / 4 + Math.PI / 2;
+          this._arcLen = Math.PI * 2 * 0.75;
+          this._lineWidth = this._canvas.width / 27;
+          this._largeFontSize = Math.round(this._canvas.width * 0.15);
+          this._largeFont = "bold " + this._largeFontSize + "px Arial";
+          this._smallFont = Math.round(this._largeFontSize / 2) + "px Arial";
+          this._radius = (this._canvas.width * 0.75) / 2;
+          let sagitta = this._radius * (1 - Math.cos(Math.PI / 4));
+          let arcHeight = this._radius * 2 - sagitta;
+          this._center_x = this._canvas.width / 2;
+          this._center_y = this._canvas.height / 2;
+          this._arc_y = this._center_y + sagitta / 2;
+        }
+
+        get value() {
+          return this._value;
+        }
+
+        set value(newValue) {
+          this._value = newValue;
+        }
+
+        get label() {
+          return this._label;
+        }
+
+        set label(newLabel) {
+          this._label = newLabel;
+        }
+
+        get background() {
+          return this._background;
+        }
+
+        set background(color) {
+          this._background = color;
+        }
+
+        get foreground() {
+          return this._foreground;
+        }
+
+        set foreground(color) {
+          this._foreground = color;
+        }
+
+        get meterEmpty() {
+          return this._meterEmpty;
+        }
+
+        set meterEmpty(color) {
+          this._meterEmpty = color;
+        }
+
+        draw() {
+          // Update anything that depends on the canvas size
+          this.updateSizes();
+
+          // Determine ratio for filled-in part of arc
+          let ratio = this._value / this._maxValue;
+
+          // Grab a 2D drawing context
+          let context = this._canvas.getContext("2d");
+
+          // Clear canvas
+          context.fillStyle = this._background;
+          context.fillRect(0, 0, this._canvas.width, this._canvas.height);
+
+          // Draw meter arc
+          this.drawArc(context, ratio);
+
+          // Draw text
+          this.drawText(context);
+        }
+
+        drawArc(context, ratio) {
+          // Set up brush
+          context.lineWidth = this._lineWidth;
+          context.lineCap = "round";
+
+          // Draw "empty" meter
+          context.strokeStyle = this._meterEmpty;
+          context.beginPath();
+          context.arc(
+            this._center_x,
+            this._arc_y,
+            this._radius,
+            this._arcStart,
+            this._arcStart + this._arcLen,
+            false
+          );
+          context.stroke();
+
+          // Fill in empty meter according to ratio
+          context.strokeStyle = this._foreground;
+          var pctArcLen = this._arcLen * ratio;
+          context.beginPath();
+          context.arc(
+            this._center_x,
+            this._arc_y,
+            this._radius,
+            this._arcStart,
+            this._arcStart + pctArcLen,
+            false
+          );
+          context.stroke();
+        }
+
+        drawText(context) {
+          // Set up for large font
+          context.font = this._largeFont;
+
+          // Measure the text for the value
+          var metrics = context.measureText("0123456789");
+          let fontHeight =
+            metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+          let baselineOffset = metrics.actualBoundingBoxAscent;
+          metrics = context.measureText(this._value);
+          let valueTextWidth = metrics.width;
+
+          // Set up for small font
+          context.font = this._smallFont;
+
+          // Measure the text for the label
+          metrics = context.measureText(this._label);
+          let labelTextWidth = metrics.width;
+
+          // Determine space between value and label, measure
+          // the whole mess and figure out where to draw
+          // so it comes out centered
+          let x = this._center_x;
+          let y = this._arc_y - (this._arc_y - this._center_y) / 2;
+          let spacer = fontHeight / 10;
+          let textWidth = valueTextWidth + spacer + labelTextWidth;
+          let textX = x - textWidth / 2;
+          let textY = y - fontHeight / 2 + baselineOffset;
+
+          // Draw value (larger font, brighter color)
+          context.font = this._largeFont;
+          context.fillStyle = this._foreground;
+          context.fillText(this._value, textX, textY);
+
+          // Draw the label (smaller font, subtle color)
+          context.font = this._smallFont;
+          context.fillStyle = this._meterEmpty;
+          context.fillText(this._label, textX + valueTextWidth + spacer, textY);
+        }
+
+        updateSizes() {
+          this._lineWidth = this._canvas.width / 27;
+          this._largeFontSize = Math.round(this._canvas.width * 0.15);
+          this._largeFont = "bold " + this._largeFontSize + "px Arial";
+          this._smallFont = Math.round(this._largeFontSize / 2) + "px Arial";
+          this._radius = (this._canvas.width * 0.75) / 2;
+          let sagitta = this._radius * (1 - Math.cos(Math.PI / 4));
+          let arcHeight = this._radius * 2 - sagitta;
+          this._center_x = this._canvas.width / 2;
+          this._center_y = this._canvas.height / 2;
+          this._arc_y = this._center_y + sagitta / 2;
+        }
+      }
+
+      function onWindowResize() {
+        let content = document.getElementById("content");
+        let meterCanvas = document.getElementById("meterCanvas");
+        meterCanvas.width =
+          content.offsetWidth -
+          (getPaddingLeft(content) + getPaddingRight(content));
+        meterCanvas.height = meterCanvas.width / 1.25;
+        meter.draw();
+      }
+
+      function getPaddingLeft(element) {
+        let px = window
+          .getComputedStyle(content, null)
+          .getPropertyValue("padding-left");
+        let nopx = px.substring(0, px.length - 2);
+        return parseInt(nopx);
+      }
+
+      function getPaddingRight(element) {
+        let px = window
+          .getComputedStyle(content, null)
+          .getPropertyValue("padding-right");
+        let nopx = px.substring(0, px.length - 2);
+        return parseInt(nopx);
+      }
+
+      function init() {
+        let meterCanvas = document.getElementById("meterCanvas");
+        meterCanvas.width = window.innerWidth / 3;
+        meterCanvas.height = meterCanvas.width;
+
+        meter = new DashMeter(meterCanvas, 600);
+        meter.background = "#eb661e";
+        meter.foreground = "#fffb99";
+        meter.meterEmpty = "#ff934a";
+        meter.value = "111";
+        meter.label = "W";
+
+        onWindowResize();
+
+        ourURL = window.location.href;
+        console.log("ourURL = " + ourURL);
+        chop = 0;
+        if (ourURL.startsWith("http://")) {
+          chop = 7;
+        } else if (ourURL.startsWith("https://")) {
+          chop = 8;
+        } else {
+          console.log("window.location.href is not an http URL");
+          document.getElementById("cs").innerHTML =
+            '<font color="red">!! NO HOST !!</font>';
+        }
+
+        if (chop != 0) {
+          tmp = ourURL.slice(chop);
+          if ((idx = tmp.indexOf("/")) != -1) {
+            ourHost = tmp.slice(0, idx);
+            console.log("ourHost = " + ourHost);
+
+            url = "ws://" + ourHost + "/ws";
+            console.log("url = " + url);
+
+            // Connect to WebSocket server
+            wsConnect(url);
+          } else {
+            console.log(
+              "Could not determine hostname from window.location.href"
+            );
+            document.getElementById("cs").innerHTML =
+              '<font color="red">!! NO HOST !!</font>';
+          }
+        }
+      }
+
+      // Call this to connect to the WebSocket server
+      function wsConnect(url) {
+        // Connect to WebSocket server
+        websocket = new WebSocket(url);
+
+        // Assign callbacks
+        websocket.onopen = function(evt) {
+          onOpen(evt);
+        };
+        websocket.onclose = function(evt) {
+          onClose(evt);
+        };
+        websocket.onmessage = function(evt) {
+          onMessage(evt);
+        };
+        websocket.onerror = function(evt) {
+          onError(evt);
+        };
+      }
+
+      // Called when a WebSocket connection is established with the server
+      function onOpen(evt) {
+        // Log connection state
+        console.log("WS Connected");
+      }
+
+      // Called when the WebSocket connection is closed
+      function onClose(evt) {
+        // Log disconnection state
+        console.log("WS Disconnected");
+
+        // Try to reconnect after a few seconds
+        setTimeout(function() {
+          wsConnect(url);
+        }, 2000);
+      }
+
+      // Called when a message is received from the server
+      function onMessage(evt) {
+        // Print out our received message
+        console.log("Received: " + evt.data);
+        obj = JSON.parse(evt.data);
+        if ("ppv" in obj) {
+          meter.value = obj.ppv;
+          meter.label = obj.ppv_units;
+          meter.draw();
+        }
+
+        if ("vpv" in obj) {
+          document.getElementById("vpv").innerHTML =
+            obj.vpv + '<span class="field_units">' + obj.vpv_units + "</span>";
+        }
+
+        if ("ipv" in obj) {
+          document.getElementById("ipv").innerHTML =
+            obj.ipv + '<span class="field_units">' + obj.ipv_units + "</span>";
+        }
+
+        if ("v" in obj) {
+          document.getElementById("v").innerHTML =
+            obj.v + '<span class="field_units">' + obj.v_units + "</span>";
+        }
+
+        if ("i" in obj) {
+          document.getElementById("i").innerHTML =
+            obj.i + '<span class="field_units">' + obj.i_units + "</span>";
+        }
+
+        if ("cs" in obj) {
+          document.getElementById("cs").innerHTML = obj.cs;
+        }
+
+        if ("pid" in obj) {
+          document.getElementById("pid").innerHTML = obj.pid;
+        }
+
+        if ("ser#" in obj) {
+          document.getElementById("serial").innerHTML = obj["ser#"];
+        }
+
+        if ("fw" in obj) {
+          document.getElementById("fw").innerHTML = obj.fw;
+        }
+      }
+
+      // Called when a WebSocket error occurs
+      function onError(evt) {
+        console.log("ERROR: " + evt.data);
+      }
+
+      // Sends a message to the server (and prints it to the console)
+      function doSend(message) {
+        console.log("Sending: " + message);
+        websocket.send(message);
+      }
+
+      var meter;
+
+      window.addEventListener("load", init, false);
+      window.addEventListener("resize", onWindowResize, false);
+    </script>
+
+    <style>
+      .content {
+        max-width: 500px;
+        margin: auto;
+        background-color: #eb661e;
+        color: #fffb99;
+        font-family: "Arial";
+        font-size: 12px;
+      }
+      .main_div {
+        height: 95%;
+      }
+      .secHeader {
+        background-color: #ff934a;
+        vertical-align: middle;
+        height: 30px;
+        line-height: 30px;
+        font-size: 15px;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .model {
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 20px;
+      }
+      .field {
+        vertical-align: middle;
+        height: 40px;
+        line-height: 40px;
+        font-size: 20px;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .field_label {
+        color: #ff934a;
+        float: left;
+      }
+      .field_value {
+        text-align: right;
+        font-weight: bold;
+      }
+      .field_units {
+        color: #ff934a;
+        font-weight: normal;
+      }
+      .foot_div {
+        color: #ff934a;
+        padding-bottom: 10px;
+        height: 20px;
+      }
+      .firmware {
+        padding-left: 10;
+        float: left;
+      }
+      .serial {
+        padding-right: 10;
+        text-align: right;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="content" id="content" background="#eb661e">
+      <div class="main_div">
+        <div class="secHeader model" id="pid">
+          BlueSolar MPPT 100/50
+        </div>
+        <canvas id="meterCanvas" width="250" height="250"></canvas>
+        <div class="secHeader">
+          Solar
+        </div>
+        <div class="field">
+          <div class="field_label">Voltage</div>
+          <div class="field_value" id="vpv">
+            34.63<span class="field_units">V</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field_label">Current</div>
+          <div class="field_value" id="ipv">
+            4.23<span class="field_units">A</span>
+          </div>
+        </div>
+        <div class="secHeader">
+          Battery
+        </div>
+        <div class="field">
+          <div class="field_label">Voltage</div>
+          <div class="field_value" id="v">
+            13.67<span class="field_units">V</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field_label">Current</div>
+          <div class="field_value" id="i">
+            18.21<span class="field_units">A</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field_label">State</div>
+          <div class="field_value" id="cs">
+            Bulk
+          </div>
+        </div>
+      </div>
+      <div class="foot_div">
+        <div class="firmware">Firmware version <span id="fw">10.45</span></div>
+        <div class="serial">S/N <span id="serial">XYZ123</span></div>
+      </div>
+    </div>
+  </body>
+</html>
