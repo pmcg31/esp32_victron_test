@@ -8,6 +8,7 @@
           this._canvas = canvas;
           this._maxValue = maxValue;
           this._value = 0;
+          this._previousValue = 0;
           this._label = "";
           this._background = "#ffffff";
           this._foreground = "#000000";
@@ -31,6 +32,7 @@
         }
 
         set value(newValue) {
+          this._previousValue = this._value;
           this._value = newValue;
         }
 
@@ -70,8 +72,9 @@
           // Update anything that depends on the canvas size
           this.updateSizes();
 
-          // Determine ratio for filled-in part of arc
-          let ratio = this._value / this._maxValue;
+          // Determine start and end ratio for filled-in part of arc
+          let startRatio = this._previousValue / this._maxValue;
+          let endRatio = this._value / this._maxValue;
 
           // Grab a 2D drawing context
           let context = this._canvas.getContext("2d");
@@ -80,11 +83,36 @@
           context.fillStyle = this._background;
           context.fillRect(0, 0, this._canvas.width, this._canvas.height);
 
-          // Draw meter arc
-          this.drawArc(context, ratio);
-
           // Draw text
           this.drawText(context);
+
+          // Draw initial arc frame
+          this.drawArc(context, startRatio);
+
+          // Animate arc (60fps, 1/3 sec)
+          var ratio = startRatio;
+          var timerId = setInterval(frame, (1.0 / 60.0) * 1000.0);
+          let step = (endRatio - startRatio) / (60 * 0.33);
+          let meter = this;
+          function frame() {
+            if (step > 0) {
+              if (ratio < endRatio) {
+                meter.drawArc(context, ratio);
+                ratio += step;
+              } else {
+                clearInterval(timerId);
+                meter.drawArc(context, endRatio);
+              }
+            } else {
+              if (ratio > endRatio) {
+                meter.drawArc(context, ratio);
+                ratio += step;
+              } else {
+                clearInterval(timerId);
+                meter.drawArc(context, endRatio);
+              }
+            }
+          }
         }
 
         drawArc(context, ratio) {
