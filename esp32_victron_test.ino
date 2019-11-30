@@ -11,7 +11,6 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
 DynamicJsonDocument victronDefs(32768);
-//StaticJsonDocument<2048> currentData;
 
 #define MAX_LINE 200
 char readLine[MAX_LINE];
@@ -25,11 +24,137 @@ typedef struct {
 #define MAX_VIC_PAIR 128
 VicPair currentData[MAX_VIC_PAIR];
 
+typedef void (*VicFieldListenerCallback)(DynamicJsonDocument&, 
+                                         const char*, const char*);
+typedef struct {
+  char fieldName[16];
+  VicFieldListenerCallback callback;
+} VicFieldListener;
+
+#define MAX_VIC_FIELD_LISTENER 10
+VicFieldListener fieldListeners[MAX_VIC_FIELD_LISTENER];
+
+void updateIpv(DynamicJsonDocument& updates,
+               float amps) {
+  const char* units = "A";
+  char tmp[50];
+  if (amps < 1.0) {
+    amps *= 10.0;
+    int roundAmps = roundf(amps);
+    roundAmps *= 100;
+    if (roundAmps == 1000) {
+      units = "A";
+      sprintf(tmp, "%.1f", 1.0);
+    } else {
+      units = "mA";
+      sprintf(tmp, "%d", roundAmps);
+    }
+  } else {
+    sprintf(tmp, "%.1f", amps);
+  }
+
+  updateCurrentData(updates,
+                    "ipv", tmp,
+                    "ipv_units", units);
+}
+
+void vpvUpdated(DynamicJsonDocument& updates,
+                const char* fieldValue,
+                const char* unitsValue) {
+  VicPair* ppv = vicFindKey("ppv");
+  if (ppv != 0) {
+    float watts = (float)atoi(ppv->value);
+    float volts = atof(fieldValue);
+    if (strcmp(unitsValue, "mV") == 0) {
+      volts /= 1000.0;
+    }
+    float amps = watts / volts;
+
+    updateIpv(updates, amps);
+  }
+}
+
+void ppvUpdated(DynamicJsonDocument& updates,
+                const char* fieldValue,
+                const char* unitsValue) {
+  VicPair* vpv = vicFindKey("vpv");
+  VicPair* vpv_units = vicFindKey("vpv_units");
+  if ((vpv != 0) && (vpv_units != 0)) {
+    float volts = atof(vpv->value);
+    if (strcmp(vpv_units->value, "mV") == 0) {
+      volts /= 1000.0;
+    }
+    float watts = (float)atoi(fieldValue);
+    float amps = watts / volts;
+
+    updateIpv(updates, amps);
+  }
+}
+
+void updateP(DynamicJsonDocument& updates,
+             int watts) {
+  char tmp[50];
+  sprintf(tmp, "%d", watts);
+
+  updateCurrentData(updates,
+                    "p", tmp,
+                    "p_units", "W");
+}
+
+void vUpdated(DynamicJsonDocument& updates,
+              const char* fieldValue,
+              const char* unitsValue) {
+  VicPair* i = vicFindKey("i");
+  VicPair* i_units = vicFindKey("i_units");
+  if ((i != 0) && (i_units != 0)) {
+    float amps = atof(i->value);
+    if (strcmp(i_units->value, "mA") == 0) {
+      amps /= 1000.0;
+    }
+    float volts = atof(fieldValue);
+    if (strcmp(unitsValue, "mV") == 0) {
+      volts /= 1000.0;
+    }
+    float watts = volts * amps;
+
+    updateP(updates, watts);
+  }
+}
+
+void iUpdated(DynamicJsonDocument& updates,
+              const char* fieldValue,
+              const char* unitsValue) {
+  VicPair* v = vicFindKey("v");
+  VicPair* v_units = vicFindKey("v_units");
+  if ((v != 0) && (v_units != 0)) {
+    float volts = atof(v->value);
+    if (strcmp(v_units->value, "mV") == 0) {
+      volts /= 1000.0;
+    }
+    float amps = atof(fieldValue);
+    if (strcmp(unitsValue, "mA") == 0) {
+      amps /= 1000.0;
+    }
+    float watts = volts * amps;
+
+    updateP(updates, watts);
+  }
+}
+
 void vicInit() {
   for (int i = 0; i < MAX_VIC_PAIR; i++) {
     currentData[i].key[0] = '\0';
     currentData[i].value[0] = '\0';
   }
+
+  for (int i = 0; i < MAX_VIC_FIELD_LISTENER; i++) {
+    fieldListeners[i].fieldName[0] = '\0';
+  }
+
+  vicAddFieldListener("vpv", &vpvUpdated);
+  vicAddFieldListener("ppv", &ppvUpdated);
+  vicAddFieldListener("v", &vUpdated);
+  vicAddFieldListener("i", &iUpdated);
 }
 
 VicPair* vicFindKey(const char* key) {
@@ -52,11 +177,35 @@ VicPair* vicFindEmptyPair() {
   return (0);
 }
 
+void vicAddFieldListener(const char* fieldName, 
+                         VicFieldListenerCallback callback) {
+  // Find empty slot
+  for (int i = 0; i < MAX_VIC_FIELD_LISTENER; i++) {
+    if (fieldListeners[i].fieldName[0] == '\0') {
+      // Empty slot, set fields and return
+      strcpy(fieldListeners[i].fieldName, fieldName);
+      fieldListeners[i].callback = callback;
+      return;
+    }
+  }
+}
+
+void vicCallFieldListener(const char* fieldName, 
+                          DynamicJsonDocument& updates, 
+                          const char* fieldValue, 
+                          const char* unitsValue) {
+  for (int i = 0; i < MAX_VIC_FIELD_LISTENER; i++) {
+    if (strcmp(fieldListeners[i].fieldName, fieldName) == 0) {
+      fieldListeners[i].callback(updates, fieldValue, unitsValue);
+    }
+  }
+}
+
 void updateCurrentData(DynamicJsonDocument& updates, 
-                       char* fieldKey, 
-                       char* fieldValue,
-                       char* unitsKey,
-                       char* unitsValue) {
+                       const char* fieldKey, 
+                       const char* fieldValue,
+                       const char* unitsKey,
+                       const char* unitsValue) {
   int fieldChanged = 0;
   int unitsChanged = 0;
 
@@ -68,7 +217,7 @@ void updateCurrentData(DynamicJsonDocument& updates,
 
       // Update current data and updates
       strcpy(fieldKeyPair->value, fieldValue);
-      updates[fieldKey] = fieldValue;
+      updates[(char*)fieldKey] = (char*)fieldValue;
     }
   } else {
     // Field key/value added
@@ -80,7 +229,7 @@ void updateCurrentData(DynamicJsonDocument& updates,
       strcpy(fieldKeyPair->key, fieldKey);
       strcpy(fieldKeyPair->value, fieldValue);
     }
-    updates[fieldKey] = fieldValue;
+    updates[(char*)fieldKey] = (char*)fieldValue;
   }
 
   VicPair* unitsKeyPair = vicFindKey(unitsKey);
@@ -91,12 +240,12 @@ void updateCurrentData(DynamicJsonDocument& updates,
 
       // If the field key/value aren't already in the update, add them
       if (!fieldChanged) {
-        updates[fieldKey] = fieldValue;
+        updates[(char*)fieldKey] = (char*)fieldValue;
       }
 
       // Add units key/value to currentData and updates
       strcpy(unitsKeyPair->value, unitsValue);
-      updates[unitsKey] = unitsValue;
+      updates[(char*)unitsKey] = (char*)unitsValue;
     }
   } else {
     // Units key/value added
@@ -104,7 +253,7 @@ void updateCurrentData(DynamicJsonDocument& updates,
 
     // If the field key/value aren't already in the update, add them
     if (!fieldChanged) {
-      updates[fieldKey] = fieldValue;
+      updates[(char*)fieldKey] = (char*)fieldValue;
     }
 
     // Add units key/value to currentData and updates
@@ -113,83 +262,18 @@ void updateCurrentData(DynamicJsonDocument& updates,
       strcpy(unitsKeyPair->key, unitsKey);
       strcpy(unitsKeyPair->value, unitsValue);
     }
-    updates[unitsKey] = unitsValue;
+    updates[(char*)unitsKey] = (char*)unitsValue;
   }
 
   // If the field changed but the units didn't, incllude the units
   // in the update anyway
   if (fieldChanged && (!unitsChanged)) {
-    updates[unitsKey] = unitsValue;
+    updates[(char*)unitsKey] = (char*)unitsValue;
   }
 
-  // Create/update derived panel current
+  // Call field listener, if defined for this field
   if (fieldChanged || unitsChanged) {
-    if (strcmp(fieldKey, "vpv") == 0) {
-      VicPair* ppv = vicFindKey("ppv");
-      if (ppv != 0) {
-        float watts = (float)atoi(ppv->value);
-        float volts = atof(fieldValue);
-        if (strcmp(unitsValue, "mV") == 0) {
-          volts /= 1000.0;
-        }
-        float amps = watts / volts;
-
-        const char* units = "A";
-        char tmp[50];
-        if (amps < 1.0) {
-          amps *= 10.0;
-          int roundAmps = roundf(amps);
-          roundAmps *= 100;
-          if (roundAmps == 1000) {
-            units = "A";
-            sprintf(tmp, "%.1f", 1.0);
-          } else {
-            units = "mA";
-            sprintf(tmp, "%d", roundAmps);
-          }
-        } else {
-          sprintf(tmp, "%.1f", amps);
-        }
-
-        updateCurrentData(updates,
-                          (char*)"ipv", tmp,
-                          (char*)"ipv_units", (char*)units);
-      }
-    }
-
-    if (strcmp(fieldKey, "ppv") == 0) {
-      VicPair* vpv = vicFindKey("vpv");
-      VicPair* vpv_units = vicFindKey("vpv_units");
-      if ((vpv != 0) && (vpv_units != 0)) {
-        float volts = atof(vpv->value);
-        if (strcmp(vpv_units->value, "mV") == 0) {
-          volts /= 1000.0;
-        }
-        float watts = (float)atoi(fieldValue);
-        float amps = watts / volts;
-
-        const char* units = "A";
-        char tmp[50];
-        if (amps < 1.0) {
-          amps *= 10.0;
-          int roundAmps = roundf(amps);
-          roundAmps *= 100;
-          if (roundAmps == 1000) {
-            units = "A";
-            sprintf(tmp, "%.1f", 1.0);
-          } else {
-            units = "mA";
-            sprintf(tmp, "%d", roundAmps);
-          }
-        } else {
-          sprintf(tmp, "%.1f", amps);
-        }
-
-        updateCurrentData(updates,
-                          (char*)"ipv", tmp,
-                          (char*)"ipv_units", (char*)units);
-      }
-    }
+    vicCallFieldListener(fieldKey, updates, fieldValue, unitsValue);
   }
 }
 

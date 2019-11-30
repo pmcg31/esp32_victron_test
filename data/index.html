@@ -359,6 +359,11 @@
         if ("fw" in obj) {
           document.getElementById("fw").innerHTML = obj.fw;
         }
+
+        if ("p" in obj) {
+          document.getElementById("p").innerHTML =
+            obj.p + '<span class="field_units">' + obj.p_units + "</span>";
+        }
       }
 
       // Called when a WebSocket error occurs
@@ -477,6 +482,12 @@
           <div class="field_label">Current</div>
           <div class="field_value" id="i">
             ---<span class="field_units">A</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field_label">Power</div>
+          <div class="field_value" id="p">
+            ---<span class="field_units">W</span>
           </div>
         </div>
         <div class="field">
