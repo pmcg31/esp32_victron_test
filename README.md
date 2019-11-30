@@ -34,7 +34,7 @@ Hook up the charge controller's VE.Direct port to the ESP32's serial port #2. Th
 
 ### 📡 WiFi credentials
 
-You will need to rename the file `sample.config.json` in the `data` directory to `config.json`. Edit the file to contain the ssid and key for your network. The ESP32 will connect to this network and attempt to establish an mDNS responder.
+You will need to rename the file `sample.config.json` to `config.json` and move it to the `data` directory. Edit the file to reflect the ssid and key for your network. The ESP32 will connect to this network and attempt to establish an mDNS responder.
 
 ## 🚀 Launching the project
 
