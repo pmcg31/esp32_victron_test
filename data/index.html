@@ -364,6 +364,11 @@
           document.getElementById("p").innerHTML =
             obj.p + '<span class="field_units">' + obj.p_units + "</span>";
         }
+
+        if ("eff" in obj) {
+          document.getElementById("eff").innerHTML =
+            obj.eff + '<span class="field_units">' + obj.eff_units + "</span>";
+        }
       }
 
       // Called when a WebSocket error occurs
@@ -488,6 +493,12 @@
           <div class="field_label">Power</div>
           <div class="field_value" id="p">
             ---<span class="field_units">W</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field_label">Efficiency</div>
+          <div class="field_value" id="eff">
+            ---<span class="field_units">%</span>
           </div>
         </div>
         <div class="field">

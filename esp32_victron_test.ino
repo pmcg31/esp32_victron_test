@@ -89,6 +89,15 @@ void ppvUpdated(DynamicJsonDocument& updates,
 
     updateIpv(updates, amps);
   }
+
+  VicPair* p = vicFindKey("p");
+  if (p != 0) {
+    int wattsBat = atoi(p->value);
+    int wattsPv = atoi(fieldValue);
+    float efficiencyPct = ((float)wattsBat / (float)wattsPv) * 100.0;
+
+    updateEff(updates, efficiencyPct);
+  }
 }
 
 void updateP(DynamicJsonDocument& updates,
@@ -141,6 +150,29 @@ void iUpdated(DynamicJsonDocument& updates,
   }
 }
 
+void updateEff(DynamicJsonDocument& updates,
+               float pct) {
+  char tmp[50];
+  sprintf(tmp, "%d", (int)roundf(pct));
+
+  updateCurrentData(updates,
+                    "eff", tmp,
+                    "eff_units", "%");
+}
+
+void pUpdated(DynamicJsonDocument& updates,
+              const char* fieldValue,
+              const char* unitsValue) {
+  VicPair* ppv = vicFindKey("ppv");
+  if (ppv != 0) {
+    int wattsPv = atoi(ppv->value);
+    int wattsBat = atoi(fieldValue);
+    float efficiencyPct = ((float)wattsBat / (float)wattsPv) * 100.0;
+
+    updateEff(updates, efficiencyPct);
+  }
+}
+
 void vicInit() {
   for (int i = 0; i < MAX_VIC_PAIR; i++) {
     currentData[i].key[0] = '\0';
@@ -155,6 +187,7 @@ void vicInit() {
   vicAddFieldListener("ppv", &ppvUpdated);
   vicAddFieldListener("v", &vUpdated);
   vicAddFieldListener("i", &iUpdated);
+  vicAddFieldListener("p", &pUpdated);
 }
 
 VicPair* vicFindKey(const char* key) {
