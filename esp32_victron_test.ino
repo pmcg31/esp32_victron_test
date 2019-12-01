@@ -94,7 +94,10 @@ void ppvUpdated(DynamicJsonDocument& updates,
   if (p != 0) {
     int wattsBat = atoi(p->value);
     int wattsPv = atoi(fieldValue);
-    float efficiencyPct = ((float)wattsBat / (float)wattsPv) * 100.0;
+    float efficiencyPct = 0.0;
+    if ((wattsPv != 0) && (wattsBat != 0)) {
+      efficiencyPct = ((float)wattsBat / (float)wattsPv) * 100.0;
+    }
 
     updateEff(updates, efficiencyPct);
   }
@@ -167,7 +170,10 @@ void pUpdated(DynamicJsonDocument& updates,
   if (ppv != 0) {
     int wattsPv = atoi(ppv->value);
     int wattsBat = atoi(fieldValue);
-    float efficiencyPct = ((float)wattsBat / (float)wattsPv) * 100.0;
+    float efficiencyPct = 0.0;
+    if ((wattsPv != 0) && (wattsBat != 0)) {
+      efficiencyPct = ((float)wattsBat / (float)wattsPv) * 100.0;
+    }
 
     updateEff(updates, efficiencyPct);
   }
