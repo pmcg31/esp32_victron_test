@@ -2,6 +2,11 @@
   <head>
     <title>esp32</title>
 
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans:300&display=swap"
+      rel="stylesheet"
+    />
+
     <script language="javascript" type="text/javascript">
       class DashMeter {
         constructor(canvas, maxValue) {
@@ -17,8 +22,11 @@
           this._arcLen = Math.PI * 2 * 0.75;
           this._lineWidth = this._canvas.width / 27;
           this._largeFontSize = Math.round(this._canvas.width * 0.15);
-          this._largeFont = "bold " + this._largeFontSize + "px Arial";
-          this._smallFont = Math.round(this._largeFontSize / 2) + "px Arial";
+          this._fontFamily = "Arial";
+          this._largeFont =
+            "bold " + this._largeFontSize + "px " + this._fontFamily;
+          this._smallFont =
+            Math.round(this._largeFontSize / 2) + "px " + this._fontFamily;
           this._radius = (this._canvas.width * 0.75) / 2;
           let sagitta = this._radius * (1 - Math.cos(Math.PI / 4));
           let arcHeight = this._radius * 2 - sagitta;
@@ -66,6 +74,21 @@
 
         set meterEmpty(color) {
           this._meterEmpty = color;
+        }
+
+        get fontFamily() {
+          return this._fontFamily;
+        }
+
+        set fontFamily(fontFamily) {
+          this._fontFamily = fontFamily;
+          this._largeFont =
+            "bold " + this._largeFontSize + "px '" + this._fontFamily + "'";
+          this._smallFont =
+            Math.round(this._largeFontSize / 2) +
+            "px '" +
+            this._fontFamily +
+            "'";
         }
 
         draw() {
@@ -191,8 +214,10 @@
         updateSizes() {
           this._lineWidth = this._canvas.width / 27;
           this._largeFontSize = Math.round(this._canvas.width * 0.15);
-          this._largeFont = "bold " + this._largeFontSize + "px Arial";
-          this._smallFont = Math.round(this._largeFontSize / 2) + "px Arial";
+          this._largeFont =
+            "bold " + this._largeFontSize + "px " + this._fontFamily;
+          this._smallFont =
+            Math.round(this._largeFontSize / 2) + "px " + this._fontFamily;
           this._radius = (this._canvas.width * 0.75) / 2;
           let sagitta = this._radius * (1 - Math.cos(Math.PI / 4));
           let arcHeight = this._radius * 2 - sagitta;
@@ -237,6 +262,7 @@
         meter.background = "#eb661e";
         meter.foreground = "#fffb99";
         meter.meterEmpty = "#ff934a";
+        meter.fontFamily = "Open Sans";
         meter.value = "0";
         meter.label = "W";
 
@@ -394,7 +420,7 @@
         margin: auto;
         background-color: #eb661e;
         color: #fffb99;
-        font-family: "Arial";
+        font-family: "Open Sans";
         font-size: 12px;
       }
       .main_div {
