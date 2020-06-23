@@ -40,4 +40,6 @@ You will need to rename the file `sample.config.json` to `config.json` and move 
 
 Upload sketch data to the board first, then upload the sketch. Watch the serial monitor for WiFi to connect. If the mDNS responder was set up successfully, browse to [http://esp32.local](http://esp32.local) to see a UI with real-time updates. If the mDNS didn't work, point your browser to the IP printed in the serial monitor instead.
 
+Windows users: Windows 10 (and possibly earlier versions) does not do mDNS by default, meaning that the '.local' addresses will not work. Ironically, downloading and installing the [Apple BonJour print services](https://support.apple.com/kb/dl999?locale=en_US) enables mDNS.
+
 <p align="center" style="padding-top: 50">🍀 Good Luck! 🍀
