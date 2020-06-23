@@ -20,9 +20,9 @@ You need an ESP32 development board. I used a [NodeMCU-32s](https://www.amazon.c
 
 ### 📀 Software
 
-You need the [Arduino IDE](https://www.arduino.cc/en/main/software), of course. It must be set up for ESP32 development, including the sketch data uploader. Check out [my guide](https://pmcg31.netlify.com/esp32-set-up-on-arduino/) if you need help!
+You need the [Arduino IDE](https://www.arduino.cc/en/main/software), of course. It must be set up for ESP32 development, including the sketch data uploader. Check out [my guide](https://ideaup.online/blog/esp32-set-up-on-arduino/) if you need help!
 
-You will also need the ArduinoJSON, ESPAsyncWebServer, and ESPAsyncTCP libraries. I have a [guide to downloading and setting all those up](https://pmcg31.netlify.com/esp32-webserver-with-websockets/), too!
+You will also need the ArduinoJSON, ESPAsyncWebServer, and ESPAsyncTCP libraries. I have a [guide to downloading and setting all those up](https://ideaup.online/blog/esp32-webserver-with-websockets/), too!
 
 ## 🧩 Getting set up
 
