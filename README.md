@@ -20,9 +20,9 @@ You need an ESP32 development board. I used a [NodeMCU-32s](https://www.amazon.c
 
 ### 📀 Software
 
-You need the [Arduino IDE](https://www.arduino.cc/en/main/software), of course. It must be set up for ESP32 development, including the sketch data uploader. Check out [my guide](https://pmcg31.netlify.com/esp32-set-up-on-arduino/) if you need help!
+You need the [Arduino IDE](https://www.arduino.cc/en/main/software), of course. It must be set up for ESP32 development, including the sketch data uploader. Check out [my guide](https://ideaup.online/blog/esp32-set-up-on-arduino/) if you need help!
 
-You will also need the ArduinoJSON, ESPAsyncWebServer, and ESPAsyncTCP libraries. I have a [guide to downloading and setting all those up](https://pmcg31.netlify.com/esp32-webserver-with-websockets/), too!
+You will also need the ArduinoJSON, ESPAsyncWebServer, and ESPAsyncTCP libraries. I have a [guide to downloading and setting all those up](https://ideaup.online/blog/esp32-webserver-with-websockets/), too!
 
 ## 🧩 Getting set up
 
@@ -39,5 +39,7 @@ You will need to rename the file `sample.config.json` to `config.json` and move 
 ## 🚀 Launching the project
 
 Upload sketch data to the board first, then upload the sketch. Watch the serial monitor for WiFi to connect. If the mDNS responder was set up successfully, browse to [http://esp32.local](http://esp32.local) to see a UI with real-time updates. If the mDNS didn't work, point your browser to the IP printed in the serial monitor instead.
+
+Windows users: Windows 10 (and possibly earlier versions) does not do mDNS by default, meaning that the '.local' addresses will not work. Ironically, downloading and installing the [Apple BonJour print services](https://support.apple.com/kb/dl999?locale=en_US) enables mDNS.
 
 <p align="center" style="padding-top: 50">🍀 Good Luck! 🍀
