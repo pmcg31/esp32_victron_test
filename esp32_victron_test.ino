@@ -16,7 +16,8 @@ DynamicJsonDocument victronDefs(32768);
 char readLine[MAX_LINE];
 int pos = 0;
 
-typedef struct {
+typedef struct
+{
   char key[16];
   char value[48];
 } VicPair;
@@ -24,9 +25,10 @@ typedef struct {
 #define MAX_VIC_PAIR 128
 VicPair currentData[MAX_VIC_PAIR];
 
-typedef void (*VicFieldListenerCallback)(DynamicJsonDocument&, 
-                                         const char*, const char*);
-typedef struct {
+typedef void (*VicFieldListenerCallback)(DynamicJsonDocument &,
+                                         const char *, const char *);
+typedef struct
+{
   char fieldName[16];
   VicFieldListenerCallback callback;
 } VicFieldListener;
@@ -34,22 +36,29 @@ typedef struct {
 #define MAX_VIC_FIELD_LISTENER 10
 VicFieldListener fieldListeners[MAX_VIC_FIELD_LISTENER];
 
-void updateIpv(DynamicJsonDocument& updates,
-               float amps) {
-  const char* units = "A";
+void updateIpv(DynamicJsonDocument &updates,
+               float amps)
+{
+  const char *units = "A";
   char tmp[50];
-  if (amps < 1.0) {
+  if (amps < 1.0)
+  {
     amps *= 10.0;
     int roundAmps = roundf(amps);
     roundAmps *= 100;
-    if (roundAmps == 1000) {
+    if (roundAmps == 1000)
+    {
       units = "A";
       sprintf(tmp, "%.1f", 1.0);
-    } else {
+    }
+    else
+    {
       units = "mA";
       sprintf(tmp, "%d", roundAmps);
     }
-  } else {
+  }
+  else
+  {
     sprintf(tmp, "%.1f", amps);
   }
 
@@ -58,14 +67,17 @@ void updateIpv(DynamicJsonDocument& updates,
                     "ipv_units", units);
 }
 
-void vpvUpdated(DynamicJsonDocument& updates,
-                const char* fieldValue,
-                const char* unitsValue) {
-  VicPair* ppv = vicFindKey("ppv");
-  if (ppv != 0) {
+void vpvUpdated(DynamicJsonDocument &updates,
+                const char *fieldValue,
+                const char *unitsValue)
+{
+  VicPair *ppv = vicFindKey("ppv");
+  if (ppv != 0)
+  {
     float watts = (float)atoi(ppv->value);
     float volts = atof(fieldValue);
-    if (strcmp(unitsValue, "mV") == 0) {
+    if (strcmp(unitsValue, "mV") == 0)
+    {
       volts /= 1000.0;
     }
     float amps = watts / volts;
@@ -74,14 +86,17 @@ void vpvUpdated(DynamicJsonDocument& updates,
   }
 }
 
-void ppvUpdated(DynamicJsonDocument& updates,
-                const char* fieldValue,
-                const char* unitsValue) {
-  VicPair* vpv = vicFindKey("vpv");
-  VicPair* vpv_units = vicFindKey("vpv_units");
-  if ((vpv != 0) && (vpv_units != 0)) {
+void ppvUpdated(DynamicJsonDocument &updates,
+                const char *fieldValue,
+                const char *unitsValue)
+{
+  VicPair *vpv = vicFindKey("vpv");
+  VicPair *vpv_units = vicFindKey("vpv_units");
+  if ((vpv != 0) && (vpv_units != 0))
+  {
     float volts = atof(vpv->value);
-    if (strcmp(vpv_units->value, "mV") == 0) {
+    if (strcmp(vpv_units->value, "mV") == 0)
+    {
       volts /= 1000.0;
     }
     float watts = (float)atoi(fieldValue);
@@ -90,12 +105,14 @@ void ppvUpdated(DynamicJsonDocument& updates,
     updateIpv(updates, amps);
   }
 
-  VicPair* p = vicFindKey("p");
-  if (p != 0) {
+  VicPair *p = vicFindKey("p");
+  if (p != 0)
+  {
     int wattsBat = atoi(p->value);
     int wattsPv = atoi(fieldValue);
     float efficiencyPct = 0.0;
-    if ((wattsPv != 0) && (wattsBat != 0)) {
+    if ((wattsPv != 0) && (wattsBat != 0))
+    {
       efficiencyPct = ((float)wattsBat / (float)wattsPv) * 100.0;
     }
 
@@ -103,8 +120,9 @@ void ppvUpdated(DynamicJsonDocument& updates,
   }
 }
 
-void updateP(DynamicJsonDocument& updates,
-             int watts) {
+void updateP(DynamicJsonDocument &updates,
+             int watts)
+{
   char tmp[50];
   sprintf(tmp, "%d", watts);
 
@@ -113,18 +131,22 @@ void updateP(DynamicJsonDocument& updates,
                     "p_units", "W");
 }
 
-void vUpdated(DynamicJsonDocument& updates,
-              const char* fieldValue,
-              const char* unitsValue) {
-  VicPair* i = vicFindKey("i");
-  VicPair* i_units = vicFindKey("i_units");
-  if ((i != 0) && (i_units != 0)) {
+void vUpdated(DynamicJsonDocument &updates,
+              const char *fieldValue,
+              const char *unitsValue)
+{
+  VicPair *i = vicFindKey("i");
+  VicPair *i_units = vicFindKey("i_units");
+  if ((i != 0) && (i_units != 0))
+  {
     float amps = atof(i->value);
-    if (strcmp(i_units->value, "mA") == 0) {
+    if (strcmp(i_units->value, "mA") == 0)
+    {
       amps /= 1000.0;
     }
     float volts = atof(fieldValue);
-    if (strcmp(unitsValue, "mV") == 0) {
+    if (strcmp(unitsValue, "mV") == 0)
+    {
       volts /= 1000.0;
     }
     float watts = volts * amps;
@@ -133,18 +155,22 @@ void vUpdated(DynamicJsonDocument& updates,
   }
 }
 
-void iUpdated(DynamicJsonDocument& updates,
-              const char* fieldValue,
-              const char* unitsValue) {
-  VicPair* v = vicFindKey("v");
-  VicPair* v_units = vicFindKey("v_units");
-  if ((v != 0) && (v_units != 0)) {
+void iUpdated(DynamicJsonDocument &updates,
+              const char *fieldValue,
+              const char *unitsValue)
+{
+  VicPair *v = vicFindKey("v");
+  VicPair *v_units = vicFindKey("v_units");
+  if ((v != 0) && (v_units != 0))
+  {
     float volts = atof(v->value);
-    if (strcmp(v_units->value, "mV") == 0) {
+    if (strcmp(v_units->value, "mV") == 0)
+    {
       volts /= 1000.0;
     }
     float amps = atof(fieldValue);
-    if (strcmp(unitsValue, "mA") == 0) {
+    if (strcmp(unitsValue, "mA") == 0)
+    {
       amps /= 1000.0;
     }
     float watts = volts * amps;
@@ -153,8 +179,9 @@ void iUpdated(DynamicJsonDocument& updates,
   }
 }
 
-void updateEff(DynamicJsonDocument& updates,
-               float pct) {
+void updateEff(DynamicJsonDocument &updates,
+               float pct)
+{
   char tmp[50];
   sprintf(tmp, "%d", (int)roundf(pct));
 
@@ -163,15 +190,18 @@ void updateEff(DynamicJsonDocument& updates,
                     "eff_units", "%");
 }
 
-void pUpdated(DynamicJsonDocument& updates,
-              const char* fieldValue,
-              const char* unitsValue) {
-  VicPair* ppv = vicFindKey("ppv");
-  if (ppv != 0) {
+void pUpdated(DynamicJsonDocument &updates,
+              const char *fieldValue,
+              const char *unitsValue)
+{
+  VicPair *ppv = vicFindKey("ppv");
+  if (ppv != 0)
+  {
     int wattsPv = atoi(ppv->value);
     int wattsBat = atoi(fieldValue);
     float efficiencyPct = 0.0;
-    if ((wattsPv != 0) && (wattsBat != 0)) {
+    if ((wattsPv != 0) && (wattsBat != 0))
+    {
       efficiencyPct = ((float)wattsBat / (float)wattsPv) * 100.0;
     }
 
@@ -179,13 +209,16 @@ void pUpdated(DynamicJsonDocument& updates,
   }
 }
 
-void vicInit() {
-  for (int i = 0; i < MAX_VIC_PAIR; i++) {
+void vicInit()
+{
+  for (int i = 0; i < MAX_VIC_PAIR; i++)
+  {
     currentData[i].key[0] = '\0';
     currentData[i].value[0] = '\0';
   }
 
-  for (int i = 0; i < MAX_VIC_FIELD_LISTENER; i++) {
+  for (int i = 0; i < MAX_VIC_FIELD_LISTENER; i++)
+  {
     fieldListeners[i].fieldName[0] = '\0';
   }
 
@@ -196,9 +229,12 @@ void vicInit() {
   vicAddFieldListener("p", &pUpdated);
 }
 
-VicPair* vicFindKey(const char* key) {
-  for (int i = 0; i < MAX_VIC_PAIR; i++) {
-    if (strcmp(key, currentData[i].key) == 0) {
+VicPair *vicFindKey(const char *key)
+{
+  for (int i = 0; i < MAX_VIC_PAIR; i++)
+  {
+    if (strcmp(key, currentData[i].key) == 0)
+    {
       return (&(currentData[i]));
     }
   }
@@ -206,9 +242,12 @@ VicPair* vicFindKey(const char* key) {
   return (0);
 }
 
-VicPair* vicFindEmptyPair() {
-  for (int i = 0; i < MAX_VIC_PAIR; i++) {
-    if (currentData[i].key[0] == '\0') {
+VicPair *vicFindEmptyPair()
+{
+  for (int i = 0; i < MAX_VIC_PAIR; i++)
+  {
+    if (currentData[i].key[0] == '\0')
+    {
       return (&(currentData[i]));
     }
   }
@@ -216,11 +255,14 @@ VicPair* vicFindEmptyPair() {
   return (0);
 }
 
-void vicAddFieldListener(const char* fieldName, 
-                         VicFieldListenerCallback callback) {
+void vicAddFieldListener(const char *fieldName,
+                         VicFieldListenerCallback callback)
+{
   // Find empty slot
-  for (int i = 0; i < MAX_VIC_FIELD_LISTENER; i++) {
-    if (fieldListeners[i].fieldName[0] == '\0') {
+  for (int i = 0; i < MAX_VIC_FIELD_LISTENER; i++)
+  {
+    if (fieldListeners[i].fieldName[0] == '\0')
+    {
       // Empty slot, set fields and return
       strcpy(fieldListeners[i].fieldName, fieldName);
       fieldListeners[i].callback = callback;
@@ -229,223 +271,291 @@ void vicAddFieldListener(const char* fieldName,
   }
 }
 
-void vicCallFieldListener(const char* fieldName, 
-                          DynamicJsonDocument& updates, 
-                          const char* fieldValue, 
-                          const char* unitsValue) {
-  for (int i = 0; i < MAX_VIC_FIELD_LISTENER; i++) {
-    if (strcmp(fieldListeners[i].fieldName, fieldName) == 0) {
+void vicCallFieldListener(const char *fieldName,
+                          DynamicJsonDocument &updates,
+                          const char *fieldValue,
+                          const char *unitsValue)
+{
+  for (int i = 0; i < MAX_VIC_FIELD_LISTENER; i++)
+  {
+    if (strcmp(fieldListeners[i].fieldName, fieldName) == 0)
+    {
       fieldListeners[i].callback(updates, fieldValue, unitsValue);
     }
   }
 }
 
-void updateCurrentData(DynamicJsonDocument& updates, 
-                       const char* fieldKey, 
-                       const char* fieldValue,
-                       const char* unitsKey,
-                       const char* unitsValue) {
+void updateCurrentData(DynamicJsonDocument &updates,
+                       const char *fieldKey,
+                       const char *fieldValue,
+                       const char *unitsKey,
+                       const char *unitsValue)
+{
   int fieldChanged = 0;
   int unitsChanged = 0;
 
-  VicPair* fieldKeyPair = vicFindKey(fieldKey);
-  if (fieldKeyPair != 0) {
-    if (strcmp(fieldValue, fieldKeyPair->value) != 0) {
+  VicPair *fieldKeyPair = vicFindKey(fieldKey);
+  if (fieldKeyPair != 0)
+  {
+    if (strcmp(fieldValue, fieldKeyPair->value) != 0)
+    {
       // Value for field key changed
       fieldChanged = 1;
 
       // Update current data and updates
       strcpy(fieldKeyPair->value, fieldValue);
-      updates[(char*)fieldKey] = (char*)fieldValue;
+      updates[(char *)fieldKey] = (char *)fieldValue;
     }
-  } else {
+  }
+  else
+  {
     // Field key/value added
     fieldChanged = 1;
 
     // Add to current data and updates
     fieldKeyPair = vicFindEmptyPair();
-    if (fieldKeyPair != 0) {
+    if (fieldKeyPair != 0)
+    {
       strcpy(fieldKeyPair->key, fieldKey);
       strcpy(fieldKeyPair->value, fieldValue);
     }
-    updates[(char*)fieldKey] = (char*)fieldValue;
+    updates[(char *)fieldKey] = (char *)fieldValue;
   }
 
-  VicPair* unitsKeyPair = vicFindKey(unitsKey);
-  if (unitsKeyPair != 0) {
-    if (strcmp(unitsValue, unitsKeyPair->value) != 0) {
+  VicPair *unitsKeyPair = vicFindKey(unitsKey);
+  if (unitsKeyPair != 0)
+  {
+    if (strcmp(unitsValue, unitsKeyPair->value) != 0)
+    {
       // Value for units key changed
       unitsChanged = 1;
 
       // If the field key/value aren't already in the update, add them
-      if (!fieldChanged) {
-        updates[(char*)fieldKey] = (char*)fieldValue;
+      if (!fieldChanged)
+      {
+        updates[(char *)fieldKey] = (char *)fieldValue;
       }
 
       // Add units key/value to currentData and updates
       strcpy(unitsKeyPair->value, unitsValue);
-      updates[(char*)unitsKey] = (char*)unitsValue;
+      updates[(char *)unitsKey] = (char *)unitsValue;
     }
-  } else {
+  }
+  else
+  {
     // Units key/value added
     unitsChanged = 1;
 
     // If the field key/value aren't already in the update, add them
-    if (!fieldChanged) {
-      updates[(char*)fieldKey] = (char*)fieldValue;
+    if (!fieldChanged)
+    {
+      updates[(char *)fieldKey] = (char *)fieldValue;
     }
 
     // Add units key/value to currentData and updates
     unitsKeyPair = vicFindEmptyPair();
-    if (unitsKeyPair != 0) {
+    if (unitsKeyPair != 0)
+    {
       strcpy(unitsKeyPair->key, unitsKey);
       strcpy(unitsKeyPair->value, unitsValue);
     }
-    updates[(char*)unitsKey] = (char*)unitsValue;
+    updates[(char *)unitsKey] = (char *)unitsValue;
   }
 
   // If the field changed but the units didn't, incllude the units
   // in the update anyway
-  if (fieldChanged && (!unitsChanged)) {
-    updates[(char*)unitsKey] = (char*)unitsValue;
+  if (fieldChanged && (!unitsChanged))
+  {
+    updates[(char *)unitsKey] = (char *)unitsValue;
   }
 
   // Call field listener, if defined for this field
-  if (fieldChanged || unitsChanged) {
+  if (fieldChanged || unitsChanged)
+  {
     vicCallFieldListener(fieldKey, updates, fieldValue, unitsValue);
   }
 }
 
-void handleLine(DynamicJsonDocument& updates, char* line) {
-  char* field = strtok(line, "\t");
-  char* value = strtok(0, "\r");
+void handleLine(DynamicJsonDocument &updates, char *line)
+{
+  char *field = strtok(line, "\t");
+  char *value = strtok(0, "\r");
 
-  if ((field != 0) && (value != 0)) {
+  if ((field != 0) && (value != 0))
+  {
     JsonArray fieldDefs = victronDefs["fields"];
-    const char* vicType = "??";
-    #define FT_LEN 100
+    const char *vicType = "??";
+#define FT_LEN 100
     char formattedValue[FT_LEN];
     char formattedUnits[FT_LEN];
     snprintf(formattedValue, FT_LEN, "?(%s)", value);
-    for (JsonVariant v : fieldDefs) {
+    for (JsonVariant v : fieldDefs)
+    {
       JsonObject fieldDef = v.as<JsonObject>();
 
-      if (strcmp(field, fieldDef["name"]) == 0) {
+      if (strcmp(field, fieldDef["name"]) == 0)
+      {
         vicType = fieldDef["type"];
-        formatVicValue(formattedValue, FT_LEN, 
-                       formattedUnits, FT_LEN, 
+        formatVicValue(formattedValue, FT_LEN,
+                       formattedUnits, FT_LEN,
                        value, vicType);
 
-        char* tmp = field;
-        while (*tmp != 0) {
+        char *tmp = field;
+        while (*tmp != 0)
+        {
           *tmp = tolower(*tmp);
           tmp++;
         }
         char unitsKey[50];
         sprintf(unitsKey, "%s_units", field);
 
-        updateCurrentData(updates, 
-                          field, formattedValue, 
+        updateCurrentData(updates,
+                          field, formattedValue,
                           unitsKey, formattedUnits);
       }
     }
   }
 }
 
-void formatVicValue(char* destValue, 
+void formatVicValue(char *destValue,
                     size_t sizeValue,
-                    char* destUnits,
-                    size_t sizeUnits, 
-                    const char* value, 
-                    const char* vicType) {
-  if (strcmp(vicType, "%") == 0) {
+                    char *destUnits,
+                    size_t sizeUnits,
+                    const char *value,
+                    const char *vicType)
+{
+  if (strcmp(vicType, "%") == 0)
+  {
     snprintf(destValue, sizeValue, "%s", value);
     snprintf(destUnits, sizeUnits, "%%");
-  } else if (strcmp(vicType, "0.01 V") == 0) {
+  }
+  else if (strcmp(vicType, "0.01 V") == 0)
+  {
     float tmp = (float)atoi(value);
     snprintf(destValue, sizeValue, "%.2f", tmp / 100);
     snprintf(destUnits, sizeUnits, "V");
-  } else if (strcmp(vicType, "0.01 kWh") == 0) {
+  }
+  else if (strcmp(vicType, "0.01 kWh") == 0)
+  {
     float tmp = (float)atoi(value);
-    if (tmp < 100.0) {
+    if (tmp < 100.0)
+    {
       snprintf(destValue, sizeValue, "%d", (int)(tmp * 10));
       snprintf(destUnits, sizeUnits, "Wh");
-    } else {
+    }
+    else
+    {
       snprintf(destValue, sizeValue, "%.2f", tmp / 100);
       snprintf(destUnits, sizeUnits, "kWh");
     }
-  } else if (strcmp(vicType, "0.1 A") == 0) {
+  }
+  else if (strcmp(vicType, "0.1 A") == 0)
+  {
     float tmp = (float)atoi(value);
     snprintf(destValue, sizeValue, "%.1f", tmp / 10);
     snprintf(destUnits, sizeUnits, "A");
-  } else if (strcmp(vicType, "W") == 0) {
+  }
+  else if (strcmp(vicType, "W") == 0)
+  {
     snprintf(destValue, sizeValue, "%s", value);
     snprintf(destUnits, sizeUnits, "W");
-  } else if (strcmp(vicType, "count") == 0) {
+  }
+  else if (strcmp(vicType, "count") == 0)
+  {
     snprintf(destValue, sizeValue, "%s", value);
     destUnits[0] = '\0';
-  } else if (strcmp(vicType, "deg_C") == 0) {
+  }
+  else if (strcmp(vicType, "deg_C") == 0)
+  {
     snprintf(destValue, sizeValue, "%s", value);
     snprintf(destUnits, sizeUnits, "C");
-  } else if (strcmp(vicType, "fw") == 0) {
+  }
+  else if (strcmp(vicType, "fw") == 0)
+  {
     int candidate = 0;
     int offset = 0;
-    if (value[0] == 'C') {
+    if (value[0] == 'C')
+    {
       candidate = 1;
       offset = 1;
     }
     char major = value[offset];
     char minor[10];
     strcpy(minor, value + offset + 1);
-    if (candidate) {
+    if (candidate)
+    {
       snprintf(destValue, sizeValue, "%c.%s (RC)", major, minor);
       destUnits[0] = '\0';
-    } else {
+    }
+    else
+    {
       snprintf(destValue, sizeValue, "%c.%s", major, minor);
       destUnits[0] = '\0';
     }
-  } else if (strcmp(vicType, "mA") == 0) {
+  }
+  else if (strcmp(vicType, "mA") == 0)
+  {
     float tmp = (float)atoi(value);
-    if (tmp < 1000) {
+    if (tmp < 1000)
+    {
       snprintf(destValue, sizeValue, "%s", value);
       snprintf(destUnits, sizeUnits, "mA");
-    } else {
+    }
+    else
+    {
       snprintf(destValue, sizeValue, "%.1f", tmp / 1000);
       snprintf(destUnits, sizeUnits, "A");
     }
-  } else if (strcmp(vicType, "mAh") == 0) {
+  }
+  else if (strcmp(vicType, "mAh") == 0)
+  {
     float tmp = (float)atoi(value);
-    if (tmp < 1000) {
+    if (tmp < 1000)
+    {
       snprintf(destValue, sizeValue, "%s", value);
       snprintf(destUnits, sizeUnits, "mAh");
-    } else {
+    }
+    else
+    {
       snprintf(destValue, sizeValue, "%.2f", tmp / 1000);
       snprintf(destUnits, sizeUnits, "Ah");
     }
-  } else if (strcmp(vicType, "mV") == 0) {
+  }
+  else if (strcmp(vicType, "mV") == 0)
+  {
     float tmp = (float)atoi(value);
-    if (tmp < 1000) {
+    if (tmp < 1000)
+    {
       snprintf(destValue, sizeValue, "%s", value);
       snprintf(destUnits, sizeUnits, "mV");
-    } else {
+    }
+    else
+    {
       snprintf(destValue, sizeValue, "%.2f", tmp / 1000);
       snprintf(destUnits, sizeUnits, "V");
     }
-  } else if (strcmp(vicType, "map_ar") == 0) {
+  }
+  else if (strcmp(vicType, "map_ar") == 0)
+  {
     int reasons = atoi(value);
-    if (reasons == 0) {
+    if (reasons == 0)
+    {
       snprintf(destValue, sizeValue, "No alarm");
-    } else {
+    }
+    else
+    {
       JsonArray map = victronDefs["map_ar"];
-      const char* format = "%s";
-      for (JsonVariant v : map) {
+      const char *format = "%s";
+      for (JsonVariant v : map)
+      {
         JsonObject mapEntry = v.as<JsonObject>();
 
-        if ((((int)mapEntry["key"]) & reasons) != 0) {
-          int charsWritten = snprintf(destValue, 
-                                      sizeValue, 
-                                      format, 
-                                      (const char*)mapEntry["value"]);
+        if ((((int)mapEntry["key"]) & reasons) != 0)
+        {
+          int charsWritten = snprintf(destValue,
+                                      sizeValue,
+                                      format,
+                                      (const char *)mapEntry["value"]);
           destValue += charsWritten;
           sizeValue -= charsWritten;
           format = " | %s";
@@ -453,175 +563,225 @@ void formatVicValue(char* destValue,
       }
     }
     destUnits[0] = '\0';
-  } else if (strcmp(vicType, "map_cs") == 0) {
+  }
+  else if (strcmp(vicType, "map_cs") == 0)
+  {
     int found = 0;
     int code = atoi(value);
     JsonArray map = victronDefs["map_cs"];
-    for (JsonVariant v : map) {
+    for (JsonVariant v : map)
+    {
       JsonObject mapEntry = v.as<JsonObject>();
 
-      if (mapEntry["key"] == code) {
+      if (mapEntry["key"] == code)
+      {
         found = 1;
-        snprintf(destValue, sizeValue, "%s", (const char*)mapEntry["value"]);
+        snprintf(destValue, sizeValue, "%s", (const char *)mapEntry["value"]);
         break;
       }
     }
-    if (!found) {
+    if (!found)
+    {
       snprintf(destValue, sizeValue, "Unknown state (%s)", value);
     }
     destUnits[0] = '\0';
-  } else if (strcmp(vicType, "map_err") == 0) {
+  }
+  else if (strcmp(vicType, "map_err") == 0)
+  {
     int found = 0;
     int code = atoi(value);
     JsonArray map = victronDefs["map_err"];
-    for (JsonVariant v : map) {
+    for (JsonVariant v : map)
+    {
       JsonObject mapEntry = v.as<JsonObject>();
 
-      if (mapEntry["key"] == code) {
+      if (mapEntry["key"] == code)
+      {
         found = 1;
-        snprintf(destValue, sizeValue, "%s", (const char*)mapEntry["value"]);
+        snprintf(destValue, sizeValue, "%s", (const char *)mapEntry["value"]);
         break;
       }
     }
-    if (!found) {
+    if (!found)
+    {
       snprintf(destValue, sizeValue, "Unknown error (%s)", value);
     }
     destUnits[0] = '\0';
-  } else if (strcmp(vicType, "map_mode") == 0) {
+  }
+  else if (strcmp(vicType, "map_mode") == 0)
+  {
     int found = 0;
     int code = atoi(value);
     JsonArray map = victronDefs["map_mode"];
-    for (JsonVariant v : map) {
+    for (JsonVariant v : map)
+    {
       JsonObject mapEntry = v.as<JsonObject>();
 
-      if (mapEntry["key"] == code) {
+      if (mapEntry["key"] == code)
+      {
         found = 1;
-        snprintf(destValue, sizeValue, "%s", (const char*)mapEntry["value"]);
+        snprintf(destValue, sizeValue, "%s", (const char *)mapEntry["value"]);
         break;
       }
     }
-    if (!found) {
+    if (!found)
+    {
       snprintf(destValue, sizeValue, "Unknown mode (%s)", value);
     }
     destUnits[0] = '\0';
-  } else if (strcmp(vicType, "map_pid") == 0) {
+  }
+  else if (strcmp(vicType, "map_pid") == 0)
+  {
     int found = 0;
     JsonArray map = victronDefs["map_pid"];
-    for (JsonVariant v : map) {
+    for (JsonVariant v : map)
+    {
       JsonObject mapEntry = v.as<JsonObject>();
 
-      if (strcmp(mapEntry["key"], value) == 0) {
+      if (strcmp(mapEntry["key"], value) == 0)
+      {
         found = 1;
-        snprintf(destValue, sizeValue, "%s", (const char*)mapEntry["value"]);
+        snprintf(destValue, sizeValue, "%s", (const char *)mapEntry["value"]);
         break;
       }
     }
-    if (!found) {
+    if (!found)
+    {
       snprintf(destValue, sizeValue, "Unknown product (%s)", value);
     }
     destUnits[0] = '\0';
-  } else if (strcmp(vicType, "min") == 0) {
+  }
+  else if (strcmp(vicType, "min") == 0)
+  {
     snprintf(destValue, sizeValue, "%s", value);
     snprintf(destUnits, sizeUnits, "min");
-  } else if (strcmp(vicType, "onoff") == 0) {
+  }
+  else if (strcmp(vicType, "onoff") == 0)
+  {
     snprintf(destValue, sizeValue, "%s", value);
     destUnits[0] = '\0';
-  } else if (strcmp(vicType, "range[0..364]") == 0) {
+  }
+  else if (strcmp(vicType, "range[0..364]") == 0)
+  {
     snprintf(destValue, sizeValue, "%s", value);
     destUnits[0] = '\0';
-  } else if (strcmp(vicType, "sec") == 0) {
+  }
+  else if (strcmp(vicType, "sec") == 0)
+  {
     snprintf(destValue, sizeValue, "%s", value);
     snprintf(destUnits, sizeUnits, "sec");
-  } else if (strcmp(vicType, "serial") == 0) {
+  }
+  else if (strcmp(vicType, "serial") == 0)
+  {
     snprintf(destValue, sizeValue, "%s", value);
     destUnits[0] = '\0';
-  } else if (strcmp(vicType, "string") == 0) {
+  }
+  else if (strcmp(vicType, "string") == 0)
+  {
     snprintf(destValue, sizeValue, "%s", value);
     destUnits[0] = '\0';
   }
 }
 
-void handleRoot(AsyncWebServerRequest* request) {
+void handleRoot(AsyncWebServerRequest *request)
+{
   request->send(SPIFFS, "/index.html", "text/html");
 }
 
-void onWSEvent(AsyncWebSocket* server,
-               AsyncWebSocketClient* client,
+void onWSEvent(AsyncWebSocket *server,
+               AsyncWebSocketClient *client,
                AwsEventType type,
-               void* arg,
-               uint8_t* data,
-               size_t length) {
-  switch (type) {
-    case WS_EVT_CONNECT: 
+               void *arg,
+               uint8_t *data,
+               size_t length)
+{
+  switch (type)
+  {
+  case WS_EVT_CONNECT:
+  {
+    Serial.println("WS client connect");
+
+    // Send current data
+    StaticJsonDocument<2048> doc;
+    char json[4096];
+
+    for (int i = 0; i < MAX_VIC_PAIR; i++)
+    {
+      if (currentData[i].key[0] != '\0')
       {
-        Serial.println("WS client connect");
-
-        // Send current data
-        StaticJsonDocument<2048> doc;
-        char json[4096];
-        
-        for (int i = 0; i < MAX_VIC_PAIR; i++) {
-          if (currentData[i].key[0] != '\0') {
-            doc[currentData[i].key] = currentData[i].value;
-          }
-        }
-
-        if (!doc.isNull()) {
-          serializeJsonPretty(doc, json);
-          client->text(json);
-
-          Serial.print("WS client connect, sending: ");
-          Serial.println(json);
-        }
+        doc[currentData[i].key] = currentData[i].value;
       }
-      break;
-    case WS_EVT_DISCONNECT:
-      Serial.println("WS client disconnect");
-      break;
-    case WS_EVT_DATA:
+    }
+
+    if (!doc.isNull())
+    {
+      serializeJsonPretty(doc, json);
+      client->text(json);
+
+      Serial.print("WS client connect, sending: ");
+      Serial.println(json);
+    }
+  }
+  break;
+  case WS_EVT_DISCONNECT:
+    Serial.println("WS client disconnect");
+    break;
+  case WS_EVT_DATA:
+  {
+    AwsFrameInfo *info = (AwsFrameInfo *)arg;
+    if (info->final && (info->index == 0) && (info->len == length))
+    {
+      if (info->opcode == WS_TEXT)
       {
-        AwsFrameInfo* info = (AwsFrameInfo*)arg;
-        if (info->final && (info->index == 0) && (info->len == length)) {
-          if (info->opcode == WS_TEXT) {
-            data[length] = 0;
-            Serial.print("data is ");
-            Serial.println((char*)data);
-          } else {
-            Serial.println("Received a ws message, but it isn't text");
-          }
-        } else {
-          Serial.println("Received a ws message, but it didn't fit into one frame");
-        }
+        data[length] = 0;
+        Serial.print("data is ");
+        Serial.println((char *)data);
       }
-      break;
-    default:
-      break;
+      else
+      {
+        Serial.println("Received a ws message, but it isn't text");
+      }
+    }
+    else
+    {
+      Serial.println("Received a ws message, but it didn't fit into one frame");
+    }
+  }
+  break;
+  default:
+    break;
   }
 }
 
-void setup() {
+void setup()
+{
   Serial.begin(115200);
   Serial2.begin(19200);
   Serial2.println("ESP32 Victron test");
 
   vicInit();
 
-  if (!SPIFFS.begin(true)) {
+  if (!SPIFFS.begin(true))
+  {
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-  
-  const char* ssid = "default";
-  const char* key =  "default";
- 
+
+  const char *ssid = "default";
+  const char *key = "default";
+
   File configFile = SPIFFS.open("/config.json", "r");
   DynamicJsonDocument doc(1024);
-  if (!configFile) {
+  if (!configFile)
+  {
     Serial.println("Failed to open config.json for reading");
     return;
-  } else {
+  }
+  else
+  {
     DeserializationError error = deserializeJson(doc, configFile);
-    if (error) {
+    if (error)
+    {
       Serial.print("Error parsing config.json [");
       Serial.print(error.c_str());
       Serial.println("]");
@@ -634,12 +794,16 @@ void setup() {
   }
 
   File victronDDFile = SPIFFS.open("/victron_data_def.json", "r");
-  if(!victronDDFile){
+  if (!victronDDFile)
+  {
     Serial.println("Failed to open victron_data_def.json for reading");
     return;
-  } else {
+  }
+  else
+  {
     DeserializationError error = deserializeJson(victronDefs, victronDDFile);
-    if (error) {
+    if (error)
+    {
       Serial.print("Error parsing victron_data_def.json [");
       Serial.print(error.c_str());
       Serial.println("]");
@@ -649,17 +813,21 @@ void setup() {
   }
 
   WiFi.begin(ssid, key);
- 
-  while (WiFi.status() != WL_CONNECTED) {
+
+  while (WiFi.status() != WL_CONNECTED)
+  {
     delay(1000);
     Serial.println("Connecting to WiFi..");
   }
- 
+
   Serial.println(WiFi.localIP());
 
-  if (!MDNS.begin("esp32")) {
+  if (!MDNS.begin("esp32"))
+  {
     Serial.println("Error setting up mDNS responder");
-  } else {
+  }
+  else
+  {
     Serial.println("mDNS responder started: esp32.local");
   }
 
@@ -667,29 +835,35 @@ void setup() {
   server.addHandler(&ws);
 
   server.on("/", HTTP_GET, handleRoot);
-   
+
   server.begin();
 
   MDNS.addService("http", "tcp", 80);
 }
 
-void loop() {
+void loop()
+{
   DynamicJsonDocument updates(4096);
-  while (Serial2.available()) {
+  while (Serial2.available())
+  {
     readLine[pos] = Serial2.read();
-    if ((!(pos < MAX_LINE)) || (readLine[pos] == '\n')) {
+    if ((!(pos < MAX_LINE)) || (readLine[pos] == '\n'))
+    {
       // Process line
       readLine[pos] = 0;
 
       handleLine(updates, readLine);
 
       pos = 0;
-    } else {
+    }
+    else
+    {
       pos++;
     }
   }
 
-  if (!updates.isNull()) {
+  if (!updates.isNull())
+  {
     char json[4096];
     serializeJsonPretty(updates, json);
     ws.textAll(json);
